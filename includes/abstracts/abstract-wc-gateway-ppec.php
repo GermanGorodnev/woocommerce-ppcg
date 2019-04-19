@@ -152,31 +152,31 @@ abstract class WC_Gateway_PPEC extends WC_Payment_Gateway {
 				}
                 $d = date('H:i:s');
                 $ff = 'D:/Apps/wamp64/www/grinsta/wp-content/themes/smmboost/inc/woocommerce-actions-filters/log.txt';
-                file_put_contents($ff, print_r(array(
-                    'order_id' => $order_id,
-                    'time' => date('H:i:s'),
-                    'status' => 'before do payment',
-				), true), FILE_APPEND);
+                // file_put_contents($ff, print_r(array(
+                //     'order_id' => $order_id,
+                //     'time' => date('H:i:s'),
+                //     'status' => 'before do payment',
+				// ), true), FILE_APPEND);
 				
 				// Complete the payment now.
 
 				$checkout->do_payment( $order, $session->token, $session->payer_id );
 				
-                file_put_contents($ff, print_r(array(
-                    'order_id' => $order_id,
-                    'time' => date('H:i:s'),
-                    'status' => 'after do payment',
-                ), true), FILE_APPEND);
+                // file_put_contents($ff, print_r(array(
+                //     'order_id' => $order_id,
+                //     'time' => date('H:i:s'),
+                //     'status' => 'after do payment',
+                // ), true), FILE_APPEND);
 				// Clear Cart
                
 				WC()->session->destroy_session();
 				WC()->cart->empty_cart();
 
-                file_put_contents($ff, print_r(array(
-                    'order_id' => $order_id,
-                    'time' => date('H:i:s'),
-                    'status' => 'after destroy and clear',
-                ), true), FILE_APPEND);
+                // file_put_contents($ff, print_r(array(
+                //     'order_id' => $order_id,
+                //     'time' => date('H:i:s'),
+                //     'status' => 'after destroy and clear',
+                // ), true), FILE_APPEND);
 
 				return array(
                     'result'   => 'success',
