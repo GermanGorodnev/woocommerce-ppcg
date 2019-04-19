@@ -137,8 +137,10 @@ abstract class WC_Gateway_PPEC extends WC_Payment_Gateway {
 		} else {
 			try {
                             
-                            update_option('_process_payment_way', 'B');
-                            
+				update_option('_process_payment_way', 'B');
+
+				session_write_close(); 
+
 				// Get details
 				$checkout_details = $checkout->get_checkout_details( $session->token );
 
@@ -148,18 +150,36 @@ abstract class WC_Gateway_PPEC extends WC_Payment_Gateway {
 				if ( $checkout->needs_billing_agreement_creation( $checkout_context ) ) {
 					$checkout->create_billing_agreement( $order, $checkout_details );
 				}
+                $d = date('H:i:s');
+                $ff = 'D:/Apps/wamp64/www/grinsta/wp-content/themes/smmboost/inc/woocommerce-actions-filters/log.txt';
+                file_put_contents($ff, print_r(array(
+                    'order_id' => $order_id,
+                    'time' => date('H:i:s'),
+                    'status' => 'before do payment',
+				), true), FILE_APPEND);
 				
-				// sleep(40);
 				// Complete the payment now.
-				$checkout->do_payment( $order, $session->token, $session->payer_id );
 
+				$checkout->do_payment( $order, $session->token, $session->payer_id );
+				
+                file_put_contents($ff, print_r(array(
+                    'order_id' => $order_id,
+                    'time' => date('H:i:s'),
+                    'status' => 'after do payment',
+                ), true), FILE_APPEND);
 				// Clear Cart
-				// session_write_close();
+               
 				WC()->session->destroy_session();
 				WC()->cart->empty_cart();
-				
+
+                file_put_contents($ff, print_r(array(
+                    'order_id' => $order_id,
+                    'time' => date('H:i:s'),
+                    'status' => 'after destroy and clear',
+                ), true), FILE_APPEND);
+
 				return array(
-					'result'   => 'success',
+                    'result'   => 'success',
 					'redirect' =>  "/thank-you/" //$this->get_return_url( $order ),
 				);
 			} catch ( PayPal_Missing_Session_Exception $e ) {
