@@ -351,6 +351,7 @@
 			$button.empty();
 			render(true);
 		}
+		validate();
 	});
 
 })(jQuery, window, document);
