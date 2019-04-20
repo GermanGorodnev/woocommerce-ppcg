@@ -86,10 +86,10 @@
 				$('#woo_pp_ec_button_product').off('.legacy')
 					.on('enable', actions.enable)
 					.on('disable', actions.disable);
+					validate();
 				actions.disable(); // Allow for validation in onClick()
 				window.paypalActions = actions; // Save for later enable()/disable() calls
-				validate();
-
+				activateButton(actions);
 			},
 
 			payment: function () {
@@ -173,7 +173,8 @@
 		// setTimeout(validate, 300);
 	};
 	var items = $('form.checkout').find('.input-text, select, input:checkbox');
-	items.on('change', function () {
+	var activateButton = function (actions) {
+		actions = actions || paypalActions;
 		var valid = validate();
 		// var data = $('form.checkout')
 		// 	.add($('<input type="hidden" name="nonce" /> ')
@@ -185,10 +186,11 @@
 		// 	.serialize();
 
 		if (valid)
-			paypalActions.enable();
+			actions.enable();
 		else
-			paypalActions.disable();
-	});
+			actions.disable();
+	};
+	items.on('change', activateButton.bind(null, undefined));
 	setTimeout(validate, 10);
 	var validate = function () {
 		$('.woocommerce-NoticeGroup-checkout, .woocommerce-error, .woocommerce-message').remove();
