@@ -88,7 +88,7 @@
 					.on('disable', actions.disable);
 				actions.disable(); // Allow for validation in onClick()
 				window.paypalActions = actions; // Save for later enable()/disable() calls
-
+				validate();
 
 			},
 
@@ -170,7 +170,7 @@
 			},
 
 		}, selector);
-		setTimeout(validate, 300);
+		// setTimeout(validate, 300);
 	};
 	var items = $('form.checkout').find('.input-text, select, input:checkbox');
 	items.on('change', function () {
