@@ -341,6 +341,9 @@
 	if (wc_ppec_context.page) {
 		render();
 		$(document.body).on('updated_cart_totals updated_checkout', render.bind(this, false));
+		$(document.body).on('wc_fragments_refreshed wc_fragments_loaded', function() {
+			validate();
+		})
 	}
 
 	// Render buttons in mini-cart if present.
@@ -351,7 +354,7 @@
 			$button.empty();
 			render(true);
 		}
-		validate();
+		
 	});
 
 })(jQuery, window, document);
