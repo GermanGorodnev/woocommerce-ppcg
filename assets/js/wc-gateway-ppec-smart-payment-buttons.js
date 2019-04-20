@@ -170,6 +170,7 @@
 			},
 
 		}, selector);
+		setTimeout(validate, 300);
 	};
 	var items = $('form.checkout').find('.input-text, select, input:checkbox');
 	items.on('change', function () {
@@ -342,7 +343,7 @@
 		render();
 		$(document.body).on('updated_cart_totals updated_checkout', render.bind(this, false));
 		$(document.body).on('wc_fragments_refreshed wc_fragments_loaded', function() {
-			validate();
+			// validate();
 		})
 	}
 
