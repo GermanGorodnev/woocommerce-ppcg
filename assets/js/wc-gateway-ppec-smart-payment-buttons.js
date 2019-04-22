@@ -86,6 +86,10 @@
 				$('#woo_pp_ec_button_product').off('.legacy')
 					.on('enable', actions.enable)
 					.on('disable', actions.disable);
+					validate();
+				actions.disable(); // Allow for validation in onClick()
+				window.paypalActions = actions; // Save for later enable()/disable() calls
+				activateButton(actions);
 			},
 
 			payment: function () {
@@ -153,7 +157,7 @@
 						setTimeout(function () {
 							a.abort();
 							window.location.replace(location.protocol + '//' + location.hostname + "/thank-you/");
-						}, 1000 * .7);
+						}, 1000 * 3);
 					});
 
 
@@ -166,8 +170,112 @@
 			},
 
 		}, selector);
+		// setTimeout(validate, 300);
 	};
+	var items = $('form.checkout').find('.input-text, select, input:checkbox');
+	var activateButton = function (actions) {
+		actions = actions || paypalActions;
+		var valid = validate();
+		// var data = $('form.checkout')
+		// 	.add($('<input type="hidden" name="nonce" /> ')
+		// 		.attr('value', wc_ppec_context.start_checkout_nonce)
+		// 	)
+		// 	.add($('<input type="hidden" name="from_checkout" /> ')
+		// 		.attr('value', 'yes')
+		// 	)
+		// 	.serialize();
 
+		if (valid)
+			actions.enable();
+		else
+			actions.disable();
+	};
+	items.on('change', activateButton.bind(null, undefined));
+	setTimeout(validate, 10);
+	var validate = function () {
+		$('.woocommerce-NoticeGroup-checkout, .woocommerce-error, .woocommerce-message').remove();
+		$('.field--error').removeClass('field--error');
+		jQuery('.form-row').removeClass('field--error');
+		jQuery('.form-row p.field__message').remove();
+		var inputss = jQuery(".woocommerce-invalid input");
+		var inputss = $('form.checkout input');
+		var valid = true;
+		$.each(inputss, function (xn, it) {
+
+			var fieldName = jQuery(it).attr('name');
+			//console.log(fieldName);
+			var meme = $('#' + fieldName);
+			var regexPost = /^\s*(https\:\/\/)?(www\.)?instagram\.com\/p\/[a-z\d-_]{1,255}\/?(\?.*)?\s*$/i;
+			var regexUser = /^\s*(https\:\/\/)?(www\.)?instagram\.com\/[a-z\d-_]{1,255}\/?(\?.*)?\s*$/i;
+			switch (fieldName) {
+				case 'billing_email':
+					if (meme.val() === '') {
+						valid = false;
+						jQuery(it).parent().addClass('field--error').append('<p class="field__message field__message--error" id="error-for-email">please enter your e-mail</p>');
+					}
+					break;
+				case 'billing_first_name':
+					if (meme.val() === '') {
+						valid = false;
+						jQuery(it).parent().addClass('field--error').append('<p class="field__message field__message--error" id="error-for-first_name">please enter your first name</p>');
+					}
+					break;
+				case 'billing_last_name':
+					if (meme.val() === '') {
+						valid = false;
+						jQuery(it).parent().addClass('field--error').append('<p class="field__message field__message--error" id="error-for-last_name">please enter your last name</p>');
+					}
+					break;
+				case 'billing_address_1':
+					if (meme.val() === '') {
+						valid = false;
+						jQuery(it).parent().addClass('field--error').append('<p class="field__message field__message--error" id="error-for-address1">please enter your address</p>');
+					}
+					break;
+				case 'billing_city':
+					if (meme.val() === '') {
+						valid = false;
+						jQuery(it).parent().addClass('field--error').append('<p class="field__message field__message--error" id="error-for-city">please enter your city</p>');
+					}
+					break;
+				case 'order_comments':
+					if (meme.val() === '') {
+						valid = false;
+						jQuery(it).parent().addClass('field--error').append('<p class="field__message field__message--error" id="error-for-order_comments">please enter your username</p>');
+					} else if (!regexUser.test(meme.val())) {
+						jQuery(it).parent().addClass('field--error').append('<p class="field__message field__message--error" id="error-for-order_comments">username format incorrect (ex: instagram.com/username)</p>');
+					}
+					break;
+				case 'order_post_likes_url':
+					if (meme.val() === '') {
+						jQuery(it).parent().addClass('field--error').append('<p class="field__message field__message--error" id="error-for-order_post_url_likes">please enter your post url for likes</p>');
+					} else if (!regexPost.test(meme.val())) {
+						valid = false;
+						jQuery(it).parent().addClass('field--error').append('<p class="field__message field__message--error" id="error-for-order_post_url_likes">post url for likes format incorrect (ex: instagram.com/p/6g551)</p>');
+					}
+					break;
+				case 'order_post_views_url':
+					if (meme.val() === '') {
+						valid = false;
+						jQuery(it).parent().addClass('field--error').append('<p class="field__message field__message--error" id="error-for-order_post_url_views">please enter your post url for views</p>');
+					} else if (!regexPost.test(meme.val())) {
+						valid = false;
+						jQuery(it).parent().addClass('field--error').append('<p class="field__message field__message--error" id="error-for-order_post_url_views">post url for views format incorrect (ex: instagram.com/p/6g551)</p>');
+					}
+					break;
+				case 'terms':
+					if (meme.prop('checked') === false) {
+						valid = false;
+						jQuery(it).parent().addClass('field--error').append('<p class="field__message field__message--error" id="error-for-terms">Please read and accept the terms and conditions to proceed with your order.</p>');
+					}
+					break;
+
+				default:
+				//code block
+			}
+		})
+		return valid;
+	}
 	// custom method
 	var showErrorsNearlyFields = function () {
 		var inputss = jQuery(".woocommerce-invalid input");
@@ -236,6 +344,9 @@
 	if (wc_ppec_context.page) {
 		render();
 		$(document.body).on('updated_cart_totals updated_checkout', render.bind(this, false));
+		$(document.body).on('wc_fragments_refreshed wc_fragments_loaded', function() {
+			// validate();
+		})
 	}
 
 	// Render buttons in mini-cart if present.
@@ -246,6 +357,7 @@
 			$button.empty();
 			render(true);
 		}
+		
 	});
 
 })(jQuery, window, document);
