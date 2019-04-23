@@ -86,7 +86,7 @@
 				$('#woo_pp_ec_button_product').off('.legacy')
 					.on('enable', actions.enable)
 					.on('disable', actions.disable);
-					validate();
+				validate();
 				actions.disable(); // Allow for validation in onClick()
 				window.paypalActions = actions; // Save for later enable()/disable() calls
 				activateButton(actions);
@@ -207,9 +207,13 @@
 			var meme = $('#' + fieldName);
 			var regexPost = /^\s*(https\:\/\/)?(www\.)?instagram\.com\/p\/[a-z\d-_]{1,255}\/?(\?.*)?\s*$/i;
 			var regexUser = /^\s*(https\:\/\/)?(www\.)?instagram\.com\/[a-z\d-_]{1,255}\/?(\?.*)?\s*$/i;
+			var regexMail = /^\S+@\S+\.\S+$/i;
 			switch (fieldName) {
 				case 'billing_email':
 					if (meme.val() === '') {
+						valid = false;
+						jQuery(it).parent().addClass('field--error').append('<p class="field__message field__message--error" id="error-for-email">please enter your e-mail</p>');
+					} else if (!regexMail.test(meme.val())) {
 						valid = false;
 						jQuery(it).parent().addClass('field--error').append('<p class="field__message field__message--error" id="error-for-email">please enter your e-mail</p>');
 					}
@@ -344,7 +348,7 @@
 	if (wc_ppec_context.page) {
 		render();
 		$(document.body).on('updated_cart_totals updated_checkout', render.bind(this, false));
-		$(document.body).on('wc_fragments_refreshed wc_fragments_loaded', function() {
+		$(document.body).on('wc_fragments_refreshed wc_fragments_loaded', function () {
 			// validate();
 		})
 	}
@@ -357,7 +361,7 @@
 			$button.empty();
 			render(true);
 		}
-		
+
 	});
 
 })(jQuery, window, document);
