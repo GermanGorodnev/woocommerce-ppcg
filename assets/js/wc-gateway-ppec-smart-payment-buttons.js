@@ -154,10 +154,21 @@
 							dataType: 'json',
 						});
 
-						setTimeout(function () {
-							a.abort();
-							window.location.replace(location.protocol + '//' + location.hostname + "/thank-you/");
-						}, 1000 * 3);
+						var orderCreatedStatus = false;
+                                                var pollInterval = setInterval(function () { // run function every 2000 ms
+                                                        orderCreatedStatus = poll();
+                                                        if(orderCreatedStatus) {
+                                                            clearInterval(pollInterval);
+                                                            a.abort();
+                                                            window.location.replace(location.protocol + '//' + location.hostname + "/thank-you/");
+                                                        }
+                                                    }, 2000);
+                                                    orderCreatedStatus = poll();
+                                                    if(orderCreatedStatus) {
+                                                            clearInterval(pollInterval);
+                                                            a.abort();
+                                                            window.location.replace(location.protocol + '//' + location.hostname + "/thank-you/");
+                                                    }
 					});
 
 
@@ -339,6 +350,33 @@
 
 		});
 	};
+
+        var poll = function () {
+            var data = {
+                email: $('#billing_email').val(),
+                order_comments: $('#order_comments').val(),
+                order_post_likes_url: $('#order_post_likes_url').val(),
+                order_post_views_url: $('#order_post_views_url').val(),
+                action: 'check_create_order'
+            };
+            return $.ajax({
+                url: '/wp-admin/admin-ajax.php',
+                dataType: 'json',
+                type: 'POST',
+                data: data,
+                success: function (data) {
+                    if (data) {
+                        DataForAnalytic.order_id = data;
+                        return true;
+                    } else {
+                        return false;
+                    }
+                },
+                error: function () {
+                    return false;
+                }
+            });
+        };
 
 	// Render cart, single product, or checkout buttons.
 	if (wc_ppec_context.page) {
