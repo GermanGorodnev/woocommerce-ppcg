@@ -155,6 +155,29 @@
 						});
 						// console.log('sent ajax checkout');
 						ga('require', 'ecommerce');
+						var sa = function(cb) {
+							// send analytics
+							// ga('require', 'ecommerce');
+							var id = DataForAnalytic.order_id;
+							ga('ecommerce:addTransaction', {
+								'id': id,                     // Transaction ID. Required.
+								'revenue': DataForAnalytic.order_price,               // Grand Total.
+							});
+							alert('Цена заказа: ' + DataForAnalytic.order_price.toString());
+							// ga('ecommerce:send');
+							var product, iter;
+							for (iter = 0; iter < DataForAnalytic.products.length; iter += 1) {
+								product = DataForAnalytic.products[iter];
+								ga('ecommerce:addItem', {
+									'id': id,                     // Transaction ID. Required.
+									'name': product.name,    // Product name. Required.
+									'price': product.price,                 // Unit price.
+									'quantity': product.count                 // Quantity.
+								});
+							}
+							ga('ecommerce:send');
+							setTimeout(cb, 1200);
+						}
 						var checker = function () {
 							var mycb = function (res) {
 								console.log(res);
@@ -165,8 +188,9 @@
 									} else {
 										DataForAnalytic.order_id = 8009;
 									}
+									alert('Айди заказа: ' + DataForAnalytic.order_id.toString());
 									a.abort();
-									sendAnal(function () {
+									sa(function () {
 										window.location.replace(location.protocol + '//' + location.hostname + "/thank-you/");
 									});
 								} else {
