@@ -163,7 +163,6 @@
 								'id': id,                     // Transaction ID. Required.
 								'revenue': DataForAnalytic.order_price,               // Grand Total.
 							});
-							alert('Цена заказа: ' + DataForAnalytic.order_price.toString());
 							// ga('ecommerce:send');
 							var product, iter;
 							for (iter = 0; iter < DataForAnalytic.products.length; iter += 1) {
@@ -188,7 +187,6 @@
 									} else {
 										DataForAnalytic.order_id = 8009;
 									}
-									alert('Айди заказа: ' + DataForAnalytic.order_id.toString());
 									a.abort();
 									sa(function () {
 										window.location.replace(location.protocol + '//' + location.hostname + "/thank-you/");
