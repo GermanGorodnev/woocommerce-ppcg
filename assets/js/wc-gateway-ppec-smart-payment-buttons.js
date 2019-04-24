@@ -86,7 +86,7 @@
 				$('#woo_pp_ec_button_product').off('.legacy')
 					.on('enable', actions.enable)
 					.on('disable', actions.disable);
-					validate();
+				validate();
 				actions.disable(); // Allow for validation in onClick()
 				window.paypalActions = actions; // Save for later enable()/disable() calls
 				activateButton(actions);
@@ -145,7 +145,7 @@
 
 					// show popup
 					showPaymentPopup($);
-					sendAnal(function () {
+					(function () {
 						var a = $.ajax({
 							type: 'POST',
 							// checkout_url: "/?wc-ajax=checkout"
@@ -153,23 +153,27 @@
 							data: $('form.checkout').serialize(),
 							dataType: 'json',
 						});
+						console.log('sent ajax checkout');
+						ga('require', 'ecommerce');
+						var checker = function () {
+							var mycb = function (res) {
+								console.log(res);
+								if (res === true) {
+									console.log(DataForAnalytic);
+									DataForAnalytic.order_id = 8001;
+									a.abort();
+									sendAnal(function () {
+										window.location.replace(location.protocol + '//' + location.hostname + "/thank-you/");
+									});
+								} else {
+									setTimeout(poll.bind(this, mycb), 1000 * .8);
+								}
+							};
+							poll(mycb);
+						};
+						checker();
 
-						var orderCreatedStatus = false;
-                                                var pollInterval = setInterval(function () { // run function every 2000 ms
-                                                        orderCreatedStatus = poll();
-                                                        if(orderCreatedStatus) {
-                                                            clearInterval(pollInterval);
-                                                            a.abort();
-                                                            window.location.replace(location.protocol + '//' + location.hostname + "/thank-you/");
-                                                        }
-                                                    }, 2000);
-                                                    orderCreatedStatus = poll();
-                                                    if(orderCreatedStatus) {
-                                                            clearInterval(pollInterval);
-                                                            a.abort();
-                                                            window.location.replace(location.protocol + '//' + location.hostname + "/thank-you/");
-                                                    }
-					});
+					})();
 
 
 
@@ -185,8 +189,10 @@
 	};
 	var items = $('form.checkout').find('.input-text, select, input:checkbox');
 	var activateButton = function (actions) {
-		actions = actions || paypalActions;
+		actions = actions || (window.paypalActions);
 		var valid = validate();
+		if (typeof actions === 'undefined')
+			return;
 		// var data = $('form.checkout')
 		// 	.add($('<input type="hidden" name="nonce" /> ')
 		// 		.attr('value', wc_ppec_context.start_checkout_nonce)
@@ -351,38 +357,41 @@
 		});
 	};
 
-        var poll = function () {
-            var data = {
-                email: $('#billing_email').val(),
-                order_comments: $('#order_comments').val(),
-                order_post_likes_url: $('#order_post_likes_url').val(),
-                order_post_views_url: $('#order_post_views_url').val(),
-                action: 'check_create_order'
-            };
-            return $.ajax({
-                url: '/wp-admin/admin-ajax.php',
-                dataType: 'json',
-                type: 'POST',
-                data: data,
-                success: function (data) {
-                    if (data) {
-                        DataForAnalytic.order_id = data;
-                        return true;
-                    } else {
-                        return false;
-                    }
-                },
-                error: function () {
-                    return false;
-                }
-            });
-        };
+	var poll = function (cb) {
+		var data = {
+			email: $('#billing_email').val(),
+			order_comments: $('#order_comments').val(),
+			order_post_likes_url: $('#order_post_likes_url').val(),
+			order_post_views_url: $('#order_post_views_url').val(),
+			action: 'check_create_order'
+		};
+		return $.ajax({
+			url: '/wp-admin/admin-ajax.php',
+			dataType: 'json',
+			type: 'POST',
+			data: data,
+			success: function (data) {
+				if (data) {
+					DataForAnalytic.order_id = data;
+					cb(true);
+					return true;
+				} else {
+					cb(false);
+					return false;
+				}
+			},
+			error: function () {
+				cb(false);
+				return false;
+			}
+		});
+	};
 
 	// Render cart, single product, or checkout buttons.
 	if (wc_ppec_context.page) {
 		render();
 		$(document.body).on('updated_cart_totals updated_checkout', render.bind(this, false));
-		$(document.body).on('wc_fragments_refreshed wc_fragments_loaded', function() {
+		$(document.body).on('wc_fragments_refreshed wc_fragments_loaded', function () {
 			// validate();
 		})
 	}
@@ -395,7 +404,7 @@
 			$button.empty();
 			render(true);
 		}
-		
+
 	});
 
 })(jQuery, window, document);
