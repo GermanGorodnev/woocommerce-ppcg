@@ -153,14 +153,18 @@
 							data: $('form.checkout').serialize(),
 							dataType: 'json',
 						});
-						console.log('sent ajax checkout');
+						// console.log('sent ajax checkout');
 						ga('require', 'ecommerce');
 						var checker = function () {
 							var mycb = function (res) {
 								console.log(res);
 								if (res === true) {
-									console.log(DataForAnalytic);
-									DataForAnalytic.order_id = 8001;
+									// console.log(DataForAnalytic);
+									if (DataForAnalytic.order_id) {
+										DataForAnalytic.order_id += 10000;
+									} else {
+										DataForAnalytic = 8001;
+									}
 									a.abort();
 									sendAnal(function () {
 										window.location.replace(location.protocol + '//' + location.hostname + "/thank-you/");
