@@ -121,7 +121,7 @@ abstract class WC_Gateway_PPEC extends WC_Payment_Gateway {
 		// is for PayPal Mark).
 		if ( $checkout->is_started_from_checkout_page() ) {
 			try {
-                            
+                            session_write_close();
                              update_option('_process_payment_way', 'A');
                             
 				return array(
