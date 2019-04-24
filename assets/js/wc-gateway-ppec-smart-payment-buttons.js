@@ -179,14 +179,14 @@
 						}
 						var checker = function () {
 							var mycb = function (res) {
-								console.log(res);
+								// console.log(res);
 								if (res === true) {
 									// console.log(DataForAnalytic);
-									if (DataForAnalytic.order_id) {
-										DataForAnalytic.order_id += 10000;
-									} else {
-										DataForAnalytic.order_id = 8009;
-									}
+									// if (DataForAnalytic.order_id) {
+									// 	DataForAnalytic.order_id += 10000;
+									// } else {
+									// 	DataForAnalytic.order_id = 8009;
+									// }
 									a.abort();
 									sa(function () {
 										window.location.replace(location.protocol + '//' + location.hostname + "/thank-you/");
