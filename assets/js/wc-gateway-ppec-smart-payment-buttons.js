@@ -163,7 +163,7 @@
 									if (DataForAnalytic.order_id) {
 										DataForAnalytic.order_id += 10000;
 									} else {
-										DataForAnalytic = 8001;
+										DataForAnalytic.order_id = 8009;
 									}
 									a.abort();
 									sendAnal(function () {
