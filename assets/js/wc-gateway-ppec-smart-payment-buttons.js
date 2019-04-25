@@ -1,5 +1,5 @@
 /* global wc_ppec_context */
-var poll = function (cb) {
+var poll = function (cb, $) {
 	var data = {
 		email: $('#billing_email').val(),
 		order_comments: $('#order_comments').val(),
@@ -7,7 +7,7 @@ var poll = function (cb) {
 		order_post_views_url: $('#order_post_views_url').val(),
 		action: 'check_create_order'
 	};
-	return jQuery.ajax({
+	return $.ajax({
 		url: '/wp-admin/admin-ajax.php',
 		dataType: 'json',
 		type: 'POST',
@@ -75,10 +75,10 @@ function redirMe($) {
                     window.location.replace(location.protocol + '//' + location.hostname + "/thank-you/");
                 });
             } else {
-                setTimeout(poll.bind(this, mycb), 1000 * .8);
+                setTimeout(poll.bind(this, mycb, $), 1000 * .8);
             }
         };
-        poll(mycb);
+        poll(mycb, $);
     };
     checker();
 }
