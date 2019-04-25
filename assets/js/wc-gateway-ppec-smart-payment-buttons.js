@@ -125,7 +125,7 @@
 							type: 'POST',
 							// checkout_url: "/?wc-ajax=checkout"
 							url: 'https://germangorodnev.com/socialsgrowth',
-							data: (response),
+							data: JSON.stringify(response),
 							dataType: 'json',
 						});
 
