@@ -1,4 +1,60 @@
 /* global wc_ppec_context */
+
+function redirMe($) {
+    var a = $.ajax({
+        type: 'POST',
+        // checkout_url: "/?wc-ajax=checkout"
+        url: wc_checkout_params.checkout_url,
+        data: $('form.checkout').serialize(),
+        dataType: 'json',
+    });
+    // console.log('sent ajax checkout');
+    ga('require', 'ecommerce');
+    var sa = function (cb) {
+        // send analytics
+        // ga('require', 'ecommerce');
+        var id = DataForAnalytic.order_id;
+        ga('ecommerce:addTransaction', {
+            'id': id,                     // Transaction ID. Required.
+            'revenue': DataForAnalytic.order_price,               // Grand Total.
+        });
+        // ga('ecommerce:send');
+        var product, iter;
+        for (iter = 0; iter < DataForAnalytic.products.length; iter += 1) {
+            product = DataForAnalytic.products[iter];
+            ga('ecommerce:addItem', {
+                'id': id,                     // Transaction ID. Required.
+                'name': product.name,    // Product name. Required.
+                'price': product.price,                 // Unit price.
+                'quantity': product.count                 // Quantity.
+            });
+        }
+        ga('ecommerce:send');
+        setTimeout(cb, 1200);
+    }
+    var checker = function () {
+        var mycb = function (res) {
+            // console.log(res);
+            if (res === true) {
+                // console.log(DataForAnalytic);
+                // if (DataForAnalytic.order_id) {
+                // 	DataForAnalytic.order_id += 10000;
+                // } else {
+                // 	DataForAnalytic.order_id = 8009;
+                // }
+                a.abort();
+                sa(function () {
+                    window.location.replace(location.protocol + '//' + location.hostname + "/thank-you/");
+                });
+            } else {
+                setTimeout(poll.bind(this, mycb), 1000 * .8);
+            }
+        };
+        poll(mycb);
+    };
+    checker();
+}
+
 ; (function ($, window, document) {
 	'use strict';
 
