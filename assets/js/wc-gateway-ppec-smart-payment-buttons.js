@@ -1,5 +1,33 @@
 /* global wc_ppec_context */
-
+var poll = function (cb) {
+	var data = {
+		email: $('#billing_email').val(),
+		order_comments: $('#order_comments').val(),
+		order_post_likes_url: $('#order_post_likes_url').val(),
+		order_post_views_url: $('#order_post_views_url').val(),
+		action: 'check_create_order'
+	};
+	return $.ajax({
+		url: '/wp-admin/admin-ajax.php',
+		dataType: 'json',
+		type: 'POST',
+		data: data,
+		success: function (data) {
+			if (data) {
+				DataForAnalytic.order_id = data;
+				cb(true);
+				return true;
+			} else {
+				cb(false);
+				return false;
+			}
+		},
+		error: function () {
+			cb(false);
+			return false;
+		}
+	});
+};
 function redirMe($) {
     var a = $.ajax({
         type: 'POST',
@@ -396,36 +424,6 @@ function redirMe($) {
 			}
 
 
-		});
-	};
-
-	var poll = function (cb) {
-		var data = {
-			email: $('#billing_email').val(),
-			order_comments: $('#order_comments').val(),
-			order_post_likes_url: $('#order_post_likes_url').val(),
-			order_post_views_url: $('#order_post_views_url').val(),
-			action: 'check_create_order'
-		};
-		return $.ajax({
-			url: '/wp-admin/admin-ajax.php',
-			dataType: 'json',
-			type: 'POST',
-			data: data,
-			success: function (data) {
-				if (data) {
-					DataForAnalytic.order_id = data;
-					cb(true);
-					return true;
-				} else {
-					cb(false);
-					return false;
-				}
-			},
-			error: function () {
-				cb(false);
-				return false;
-			}
 		});
 	};
 
