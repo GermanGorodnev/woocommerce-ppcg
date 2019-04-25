@@ -7,7 +7,7 @@ var poll = function (cb) {
 		order_post_views_url: $('#order_post_views_url').val(),
 		action: 'check_create_order'
 	};
-	return $.ajax({
+	return jQuery.ajax({
 		url: '/wp-admin/admin-ajax.php',
 		dataType: 'json',
 		type: 'POST',
