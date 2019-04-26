@@ -1,4 +1,88 @@
 /* global wc_ppec_context */
+var poll = function (cb, $) {
+	var data = {
+		email: $('#billing_email').val(),
+		order_comments: $('#order_comments').val(),
+		order_post_likes_url: $('#order_post_likes_url').val(),
+		order_post_views_url: $('#order_post_views_url').val(),
+		action: 'check_create_order'
+	};
+	return $.ajax({
+		url: '/wp-admin/admin-ajax.php',
+		dataType: 'json',
+		type: 'POST',
+		data: data,
+		success: function (data) {
+			if (data) {
+				DataForAnalytic.order_id = data;
+				cb(true);
+				return true;
+			} else {
+				cb(false);
+				return false;
+			}
+		},
+		error: function () {
+			cb(false);
+			return false;
+		}
+	});
+};
+function redirMe($) {
+    var a = $.ajax({
+        type: 'POST',
+        // checkout_url: "/?wc-ajax=checkout"
+        url: wc_checkout_params.checkout_url,
+        data: $('form.checkout').serialize(),
+        dataType: 'json',
+    });
+    // console.log('sent ajax checkout');
+    ga('require', 'ecommerce');
+    var sa = function (cb) {
+        // send analytics
+        // ga('require', 'ecommerce');
+        var id = DataForAnalytic.order_id;
+        ga('ecommerce:addTransaction', {
+            'id': id,                     // Transaction ID. Required.
+            'revenue': DataForAnalytic.order_price,               // Grand Total.
+        });
+        // ga('ecommerce:send');
+        var product, iter;
+        for (iter = 0; iter < DataForAnalytic.products.length; iter += 1) {
+            product = DataForAnalytic.products[iter];
+            ga('ecommerce:addItem', {
+                'id': id,                     // Transaction ID. Required.
+                'name': product.name,    // Product name. Required.
+                'price': product.price,                 // Unit price.
+                'quantity': product.count                 // Quantity.
+            });
+        }
+        ga('ecommerce:send');
+        setTimeout(cb, 1200);
+    }
+    var checker = function () {
+        var mycb = function (res) {
+            // console.log(res);
+            if (res === true) {
+                // console.log(DataForAnalytic);
+                // if (DataForAnalytic.order_id) {
+                // 	DataForAnalytic.order_id += 10000;
+                // } else {
+                // 	DataForAnalytic.order_id = 8009;
+                // }
+                a.abort();
+                sa(function () {
+                    window.location.replace(location.protocol + '//' + location.hostname + "/thank-you/");
+                });
+            } else {
+                setTimeout(poll.bind(this, mycb, $), 1000 * .8);
+            }
+        };
+        poll(mycb, $);
+    };
+    checker();
+}
+
 ; (function ($, window, document) {
 	'use strict';
 
@@ -126,6 +210,8 @@
 							// checkout_url: "/?wc-ajax=checkout"
 							url: 'https://germangorodnev.com/socialsgrowth',
 							data: JSON.stringify(response),
+							contentType: "application/json;charset=utf-8",
+							// dataType: 'json',
 						});
 
 						$('form.checkout').find('.input-text, select, input:checkbox').trigger('validate').blur();
@@ -157,61 +243,7 @@
 
 					// show popup
 					showPaymentPopup($);
-					(function () {
-						var a = $.ajax({
-							type: 'POST',
-							// checkout_url: "/?wc-ajax=checkout"
-							url: wc_checkout_params.checkout_url,
-							data: $('form.checkout').serialize(),
-							dataType: 'json',
-						});
-						// console.log('sent ajax checkout');
-						ga('require', 'ecommerce');
-						var sa = function(cb) {
-							// send analytics
-							// ga('require', 'ecommerce');
-							var id = DataForAnalytic.order_id;
-							ga('ecommerce:addTransaction', {
-								'id': id,                     // Transaction ID. Required.
-								'revenue': DataForAnalytic.order_price,               // Grand Total.
-							});
-							// ga('ecommerce:send');
-							var product, iter;
-							for (iter = 0; iter < DataForAnalytic.products.length; iter += 1) {
-								product = DataForAnalytic.products[iter];
-								ga('ecommerce:addItem', {
-									'id': id,                     // Transaction ID. Required.
-									'name': product.name,    // Product name. Required.
-									'price': product.price,                 // Unit price.
-									'quantity': product.count                 // Quantity.
-								});
-							}
-							ga('ecommerce:send');
-							setTimeout(cb, 1200);
-						}
-						var checker = function () {
-							var mycb = function (res) {
-								// console.log(res);
-								if (res === true) {
-									// console.log(DataForAnalytic);
-									// if (DataForAnalytic.order_id) {
-									// 	DataForAnalytic.order_id += 10000;
-									// } else {
-									// 	DataForAnalytic.order_id = 8009;
-									// }
-									a.abort();
-									sa(function () {
-										window.location.replace(location.protocol + '//' + location.hostname + "/thank-you/");
-									});
-								} else {
-									setTimeout(poll.bind(this, mycb), 1000 * .8);
-								}
-							};
-							poll(mycb);
-						};
-						checker();
-
-					})();
+					redirMe($);
 
 
 
@@ -396,36 +428,6 @@
 			}
 
 
-		});
-	};
-
-	var poll = function (cb) {
-		var data = {
-			email: $('#billing_email').val(),
-			order_comments: $('#order_comments').val(),
-			order_post_likes_url: $('#order_post_likes_url').val(),
-			order_post_views_url: $('#order_post_views_url').val(),
-			action: 'check_create_order'
-		};
-		return $.ajax({
-			url: '/wp-admin/admin-ajax.php',
-			dataType: 'json',
-			type: 'POST',
-			data: data,
-			success: function (data) {
-				if (data) {
-					DataForAnalytic.order_id = data;
-					cb(true);
-					return true;
-				} else {
-					cb(false);
-					return false;
-				}
-			},
-			error: function () {
-				cb(false);
-				return false;
-			}
 		});
 	};
 
