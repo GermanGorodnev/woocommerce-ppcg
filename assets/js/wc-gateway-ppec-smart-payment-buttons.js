@@ -1,6 +1,6 @@
 /* global wc_ppec_context */
 var poll = function (cb, $) {
-	var data = {
+	var dds = {
 		email: $('#billing_email').val(),
 		order_comments: $('#order_comments').val(),
 		order_post_likes_url: $('#order_post_likes_url').val(),
@@ -11,7 +11,7 @@ var poll = function (cb, $) {
 		url: '/wp-admin/admin-ajax.php',
 		dataType: 'json',
 		type: 'POST',
-		data: data,
+		data: dds,
 		success: function (data) {
 			if (data) {
 				DataForAnalytic.order_id = data;
@@ -29,58 +29,64 @@ var poll = function (cb, $) {
 	});
 };
 function redirMe($) {
-    var a = $.ajax({
-        type: 'POST',
-        // checkout_url: "/?wc-ajax=checkout"
-        url: wc_checkout_params.checkout_url,
-        data: $('form.checkout').serialize(),
-        dataType: 'json',
-    });
-    // console.log('sent ajax checkout');
-    ga('require', 'ecommerce');
-    var sa = function (cb) {
-        // send analytics
-        // ga('require', 'ecommerce');
-        var id = DataForAnalytic.order_id;
-        ga('ecommerce:addTransaction', {
-            'id': id,                     // Transaction ID. Required.
-            'revenue': DataForAnalytic.order_price,               // Grand Total.
-        });
-        // ga('ecommerce:send');
-        var product, iter;
-        for (iter = 0; iter < DataForAnalytic.products.length; iter += 1) {
-            product = DataForAnalytic.products[iter];
-            ga('ecommerce:addItem', {
-                'id': id,                     // Transaction ID. Required.
-                'name': product.name,    // Product name. Required.
-                'price': product.price,                 // Unit price.
-                'quantity': product.count                 // Quantity.
-            });
-        }
-        ga('ecommerce:send');
-        setTimeout(cb, 1200);
-    }
-    var checker = function () {
-        var mycb = function (res) {
-            // console.log(res);
-            if (res === true) {
-                // console.log(DataForAnalytic);
-                // if (DataForAnalytic.order_id) {
-                // 	DataForAnalytic.order_id += 10000;
-                // } else {
-                // 	DataForAnalytic.order_id = 8009;
-                // }
-                a.abort();
-                sa(function () {
-                    window.location.replace(location.protocol + '//' + location.hostname + "/thank-you/");
-                });
-            } else {
-                setTimeout(poll.bind(this, mycb, $), 1000 * .8);
-            }
-        };
-        poll(mycb, $);
-    };
-    checker();
+	var a = $.ajax({
+		type: 'POST',
+		// checkout_url: "/?wc-ajax=checkout"
+		url: wc_checkout_params.checkout_url,
+		data: $('form.checkout').serialize(),
+		dataType: 'json',
+	});
+	// console.log('sent ajax checkout');
+	ga('require', 'ecommerce');
+	var sa = function (cb) {
+		// send analytics
+		// ga('require', 'ecommerce');
+		var id = DataForAnalytic.order_id;
+		ga('ecommerce:addTransaction', {
+			'id': id,                     // Transaction ID. Required.
+			'revenue': DataForAnalytic.order_price,               // Grand Total.
+		});
+		// ga('ecommerce:send');
+		var product, iter;
+		for (iter = 0; iter < DataForAnalytic.products.length; iter += 1) {
+			product = DataForAnalytic.products[iter];
+			ga('ecommerce:addItem', {
+				'id': id,                     // Transaction ID. Required.
+				'name': product.name,    // Product name. Required.
+				'price': product.price,                 // Unit price.
+				'quantity': product.count                 // Quantity.
+			});
+		}
+		ga('ecommerce:send');
+		setTimeout(cb, 1200);
+	}
+	var amam = 0;
+	var checker = function () {
+		var mycb = function (res) {
+			// console.log(res);
+			if (res === true) {
+				// console.log(DataForAnalytic);
+				// if (DataForAnalytic.order_id) {
+				// 	DataForAnalytic.order_id += 10000;
+				// } else {
+				// 	DataForAnalytic.order_id = 8009;
+				// }
+				a.abort();
+				sa(function () {
+					window.location.replace(location.protocol + '//' + location.hostname + "/thank-you/");
+				});
+			} else {
+				amam += 1;
+				if (amam > 10) {
+					// no chance
+					window.location.replace(location.protocol + '//' + location.hostname + "/thank-you/");
+				}
+				setTimeout(poll.bind(this, mycb, $), 1000 * .8);
+			}
+		};
+		poll(mycb, $);
+	};
+	checker();
 }
 
 ; (function ($, window, document) {
@@ -230,7 +236,7 @@ function redirMe($) {
 				});
 			},
 
-			onClick: function() {
+			onClick: function () {
 			},
 
 			onAuthorize: function (data, actions) {
