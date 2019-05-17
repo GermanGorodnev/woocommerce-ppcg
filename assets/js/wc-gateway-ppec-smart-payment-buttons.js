@@ -334,11 +334,13 @@ function redirMe($) {
 						valid = false;
 						jQuery(it).parent().addClass('field--error').append('<p class="field__message field__message--error" id="error-for-order_comments">please enter your username</p>');
 					} else if (!regexUser.test(meme.val())) {
+						valid = false;
 						jQuery(it).parent().addClass('field--error').append('<p class="field__message field__message--error" id="error-for-order_comments">username format incorrect (ex: instagram.com/username)</p>');
 					}
 					break;
 				case 'order_post_likes_url':
 					if (meme.val() === '') {
+						valid = false;
 						jQuery(it).parent().addClass('field--error').append('<p class="field__message field__message--error" id="error-for-order_post_url_likes">please enter your post url for likes</p>');
 					} else if (!regexPost.test(meme.val())) {
 						valid = false;
