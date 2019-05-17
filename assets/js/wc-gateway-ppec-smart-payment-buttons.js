@@ -292,8 +292,8 @@ function redirMe($) {
 			var fieldName = jQuery(it).attr('name');
 			//console.log(fieldName);
 			var meme = $('#' + fieldName);
-			var regexPost = /^\s*(https\:\/\/)?(www\.)?instagram\.com\/p\/[a-z\d-_]{1,255}\/?(\?.*)?\s*$/i;
-			var regexUser = /^\s*(https\:\/\/)?(www\.)?instagram\.com\/[a-z\d-_]{1,255}\/?(\?.*)?\s*$/i;
+			var regexPost = /^\s*(https\:\/\/)?(www\.)?instagram\.com\/p\/[^\/]{1,255}\/?(\?.*)?\s*$/i;
+			var regexUser = /^\s*(https\:\/\/)?(www\.)?instagram\.com\/[^\/]{1,255}\/?(\?.*)?\s*$/i;
 			var regexMail = /^\S+@\S+\.\S+$/i;
 			switch (fieldName) {
 				case 'billing_email':
