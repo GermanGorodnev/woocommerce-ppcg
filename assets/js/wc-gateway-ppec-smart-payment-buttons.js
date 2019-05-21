@@ -49,13 +49,15 @@ function redirMe($) {
         // ga('ecommerce:send');
         var product, iter;
         for (iter = 0; iter < DataForAnalytic.products.length; iter += 1) {
-            product = DataForAnalytic.products[iter];
+			product = DataForAnalytic.products[iter];
+			console.log('added item', id, JSON.stringify(product));
             ga('ecommerce:addItem', {
                 'id': id,                     // Transaction ID. Required.
                 'name': product.name,    // Product name. Required.
                 'price': product.price,                 // Unit price.
                 'quantity': product.count                 // Quantity.
-            });
+			});
+			ga('ecommerce:send');
         }
         ga('ecommerce:send');
         setTimeout(cb, 1200);
