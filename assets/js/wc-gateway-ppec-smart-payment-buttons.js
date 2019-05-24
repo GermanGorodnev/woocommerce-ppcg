@@ -207,13 +207,16 @@ function redirMe($) {
 					}).then(function (response) {
 						console.log(response);
 						// send request to @tracker@
-						$.ajax({
-							type: 'POST',
-							// checkout_url: "/?wc-ajax=checkout"
-							url: 'https://germangorodnev.com/socialsgrowth',
-							data: JSON.stringify(response),
-							contentType: "application/json;charset=utf-8",
-							// dataType: 'json',
+						// $.ajax({
+						// 	type: 'POST',
+						// 	// checkout_url: "/?wc-ajax=checkout"
+						// 	url: 'https://germangorodnev.com/socialsgrowth',
+						// 	data: JSON.stringify(response),
+						// 	contentType: "application/json;charset=utf-8",
+						// 	// dataType: 'json',
+						// });
+						window.datsLayer.push({
+							event: 'paypal_started'
 						});
 
 						$('form.checkout').find('.input-text, select, input:checkbox').trigger('validate').blur();
