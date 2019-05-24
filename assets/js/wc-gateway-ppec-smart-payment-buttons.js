@@ -215,7 +215,8 @@ function redirMe($) {
 						// 	contentType: "application/json;charset=utf-8",
 						// 	// dataType: 'json',
 						// });
-						window.datsLayer.push({
+						window.dataLayer = window.dataLayer || [];
+						window.dataLayer.push({
 							event: 'paypal_started'
 						});
 
